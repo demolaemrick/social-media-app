@@ -3,7 +3,6 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { auth } from './lib/better-auth.js';
 
-
 const app = new Hono();
 const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000';
 
@@ -26,7 +25,7 @@ app.get('/', (c) => {
 serve(
   {
     fetch: app.fetch,
-    port: 8080,
+    port: Number(process.env.PORT),
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
