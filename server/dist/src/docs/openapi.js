@@ -23,7 +23,7 @@ export const openApiDocument = {
                                 schema: {
                                     type: 'object',
                                     properties: {
-                                        message: { type: 'string', example: 'Hello Hono!' },
+                                        message: { type: 'string', example: 'Ok' },
                                     },
                                     required: ['message'],
                                 },

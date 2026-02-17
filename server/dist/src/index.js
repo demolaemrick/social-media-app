@@ -12,7 +12,7 @@ app.use('/api/*', cors({
     credentials: true,
 }));
 app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
-app.get('/', (c) => {
+app.get('/health', (c) => {
     return c.json({ message: 'Ok' });
 });
 registerSwagger(app);
