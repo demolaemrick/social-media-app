@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 export const user = pgTable('user', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
@@ -56,9 +56,58 @@ export const verification = pgTable('verification', {
         .$onUpdate(() => new Date())
         .notNull(),
 }, (table) => [index('verification_identifier_idx').on(table.identifier)]);
+export const post = pgTable('posts', {
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    content: text('content').notNull(),
+    authorId: text('author_id')
+        .notNull()
+        .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+}, (table) => [index('post_authorId_idx').on(table.authorId), index('post_createdAt_idx').on(table.createdAt)]);
+export const postLike = pgTable('post_likes', {
+    id: text('id').primaryKey(),
+    postId: text('post_id')
+        .notNull()
+        .references(() => post.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+        .notNull()
+        .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => [
+    index('postLike_postId_idx').on(table.postId),
+    index('postLike_userId_idx').on(table.userId),
+    uniqueIndex('postLike_postId_userId_unique').on(table.postId, table.userId),
+]);
+export const comment = pgTable('comments', {
+    id: text('id').primaryKey(),
+    postId: text('post_id')
+        .notNull()
+        .references(() => post.id, { onDelete: 'cascade' }),
+    authorId: text('author_id')
+        .notNull()
+        .references(() => user.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+        .defaultNow()
+        .$onUpdate(() => new Date())
+        .notNull(),
+}, (table) => [
+    index('comment_postId_idx').on(table.postId),
+    index('comment_authorId_idx').on(table.authorId),
+    index('comment_createdAt_idx').on(table.createdAt),
+]);
 export const userRelations = relations(user, ({ many }) => ({
     sessions: many(session),
     accounts: many(account),
+    posts: many(post),
+    postLikes: many(postLike),
+    comments: many(comment),
 }));
 export const sessionRelations = relations(session, ({ one }) => ({
     user: one(user, {
@@ -69,6 +118,34 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
     user: one(user, {
         fields: [account.userId],
+        references: [user.id],
+    }),
+}));
+export const postRelations = relations(post, ({ one, many }) => ({
+    author: one(user, {
+        fields: [post.authorId],
+        references: [user.id],
+    }),
+    likes: many(postLike),
+    comments: many(comment),
+}));
+export const postLikeRelations = relations(postLike, ({ one }) => ({
+    post: one(post, {
+        fields: [postLike.postId],
+        references: [post.id],
+    }),
+    user: one(user, {
+        fields: [postLike.userId],
+        references: [user.id],
+    }),
+}));
+export const commentRelations = relations(comment, ({ one }) => ({
+    post: one(post, {
+        fields: [comment.postId],
+        references: [post.id],
+    }),
+    author: one(user, {
+        fields: [comment.authorId],
         references: [user.id],
     }),
 }));

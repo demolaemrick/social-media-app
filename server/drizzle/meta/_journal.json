@@ -8,6 +8,20 @@
       "when": 1771210079502,
       "tag": "0000_absurd_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771609161166,
+      "tag": "0001_massive_freak",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771611522830,
+      "tag": "0002_hot_killmonger",
+      "breakpoints": true
     }
   ]
 }
